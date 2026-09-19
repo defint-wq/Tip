@@ -1,9 +1,11 @@
 package com.example.tip
 
+import android.health.connect.datatypes.units.Percentage
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import java.text.NumberFormat
@@ -48,8 +51,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TipApp( modifier: Modifier = Modifier) {
     var amountInput by remember { mutableStateOf(value = "") }
+    var tipInput by remember { mutableStateOf(value = "") }
     val amount = amountInput.toDoubleOrNull() ?: 0.0
-    val tip = calculateTip(amount)
+    val tipPercent = tipInput.toDoubleOrNull() ?: 0.0
+    val tip = calculateTip(billAmount = amount, tipPercentage = tipPercent)
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -63,7 +68,18 @@ fun TipApp( modifier: Modifier = Modifier) {
                 .align(alignment = Alignment.Start)
                 .fillMaxWidth(),
         )
-        InputValue(modifier = modifier, value = amountInput, onValueChange = { amountInput = it})
+        InputValue(
+            modifier = modifier,
+            value = amountInput,
+            onValueChange = { amountInput = it},
+            label = R.string.bill_amount
+        )
+        InputValue(
+            modifier = modifier,
+            value = tipInput,
+            onValueChange = { tipInput = it },
+            label = R.string.how_was_the_service
+        )
         Row() {
             Text(text = stringResource((R.string.tip_amount)))
             Spacer(modifier = Modifier.size(10.dp))
@@ -73,20 +89,28 @@ fun TipApp( modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun InputValue(value: String, onValueChange: (String) -> Unit, modifier: Modifier = Modifier) {
+fun InputValue(
+    @StringRes label: Int,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     TextField(
-        label = {Text(stringResource(R.string.bill_amount))},
+        label = {Text(stringResource(label))},
         value = value,
         onValueChange = onValueChange,
         modifier = modifier.fillMaxWidth(),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next
+        )
     )
 }
 
-private fun calculateTip(billAmount: Double): String {
-    val tip = (billAmount / 100) * 15
+private fun calculateTip(billAmount: Double, tipPercentage: Double): String {
+    val tip = (billAmount / 100) * tipPercentage
     return NumberFormat.getCurrencyInstance().format(tip)
 }
 
