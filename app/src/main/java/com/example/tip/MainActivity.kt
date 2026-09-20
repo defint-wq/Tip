@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -127,7 +128,6 @@ fun InputValue(
         )
     )
 }
-
 @Composable
 fun RoundTheTipRow(
     modifier: Modifier = Modifier,
@@ -137,11 +137,11 @@ fun RoundTheTipRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .size(48.dp),
+            .height(48.dp), // .size(48.dp)-ийг .height(48.dp) болгоно
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = stringResource(R.string.round_up_tip))
-        Spacer(modifier = modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(8.dp))
         Switch(
             checked = roundUp,
             onCheckedChange = onRoundUpChanged,
@@ -149,8 +149,8 @@ fun RoundTheTipRow(
     }
 }
 
-
-private fun calculateTip(billAmount: Double, tipPercentage: Double, roundUp: Boolean): String {
+@VisibleForTesting
+internal fun calculateTip(billAmount: Double, tipPercentage: Double, roundUp: Boolean): String {
     var tip = (billAmount / 100) * tipPercentage
     if (roundUp) tip = kotlin.math.ceil(tip)
 
